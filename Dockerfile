@@ -28,6 +28,7 @@ RUN \
 
 RUN locale-gen en_US.UTF-8 && update-locale
 
+
 #make a Vivado user
 RUN adduser --disabled-password --gecos '' vivado && \
   usermod -aG sudo vivado && \
@@ -57,7 +58,9 @@ RUN \
   rm -rf /var/lib/apt/lists/*
 
 COPY install_config.txt /vivado-installer/
-COPY ${INSTALL_FILE} /vivado-installer/
+
+# Assume filename is known at build-time
+COPY Xilinx_Unified_2020.1_0602_1208.tar.gz /vivado-installer/
 
 RUN \
   cat /vivado-installer/${INSTALL_FILE} | tar zx --strip-components=1 -C /vivado-installer && \
