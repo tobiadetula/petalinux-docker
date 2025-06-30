@@ -10,71 +10,21 @@ the mp4d-soc-4-drones tool."
 # Disable Prompt During Packages Installation
 ARG DEBIAN_FRONTEND=noninteractive
 
-# build with "docker build --build-arg PETA_VERSION=2020.2 --build-arg PETA_RUN_FILE=petalinux-v2020.2-final-installer.run -t petalinux:2020.2 ."
+ARG INSTALL_FILE="Xilinx_Unified_2020.1_0602_1208.tar.gz"
+ARG UBUNTU_MIRROR=archive.ubuntu.com
 
-# install dependences:
-ARG UBUNTU_MIRROR
-RUN [ -z "${UBUNTU_MIRROR}" ] || sed -i.bak s/archive.ubuntu.com/${UBUNTU_MIRROR}/g /etc/apt/sources.list 
+RUN \
+  sed -i.bak s/archive.ubuntu.com/${UBUNTU_MIRROR}/g /etc/apt/sources.list  && \
+  apt-get update -y && \
+  apt-get upgrade -y && \
+  apt-get -y --no-install-recommends install \
+    ca-certificates curl sudo xorg dbus dbus-x11 ubuntu-gnome-default-settings gtk2-engines \
+    ttf-ubuntu-font-family fonts-ubuntu-font-family-console fonts-droid-fallback lxappearance && \
+  apt-get autoclean && \
+  apt-get autoremove && \
+  rm -rf /var/lib/apt/lists/* && \
+  echo "%sudo ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-RUN apt-get update &&  DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
-  build-essential \
-  sudo \
-  tofrodos \
-  iproute2 \
-  gawk \
-  net-tools \
-  expect \
-  libncurses5-dev \
-  tftpd \
-  update-inetd \
-  libssl-dev \
-  flex \
-  bison \
-  libselinux1 \
-  gnupg \
-  wget \
-  socat \
-  gcc-multilib \
-  libidn11 \
-  libsdl1.2-dev \
-  libglib2.0-dev \
-  lib32z1-dev \
-  libgtk2.0-0 \
-  libtinfo5 \
-  xxd \
-  screen \
-  pax \
-  diffstat \
-  xvfb \
-  xterm \
-  texinfo \
-  gzip \
-  unzip \
-  cpio \
-  chrpath \
-  autoconf \
-  lsb-release \
-  libtool \
-  libtool-bin \
-  locales \
-  kmod \
-  git \
-  rsync \
-  bc \
-  u-boot-tools \
-  python \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
-
-RUN dpkg --add-architecture i386 &&  apt-get update &&  \
-      DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
-      zlib1g:i386 \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-
-ARG PETA_VERSION
-ARG PETA_RUN_FILE
 
 RUN locale-gen en_US.UTF-8 && update-locale
 
@@ -83,16 +33,45 @@ RUN adduser --disabled-password --gecos '' vivado && \
   usermod -aG sudo vivado && \
   echo "vivado ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-COPY accept-eula.sh ${PETA_RUN_FILE} /
+ARG gosu_version=1.10
+RUN \
+  curl -SL "https://github.com/tianon/gosu/releases/download/${gosu_version}/gosu-$(dpkg --print-architecture)" \
+    -o /usr/local/bin/gosu && \
+  curl -SL "https://github.com/tianon/gosu/releases/download/${gosu_version}/gosu-$(dpkg --print-architecture).asc" \
+    -o /usr/local/bin/gosu.asc && \
+  gpg --keyserver keyserver.ubuntu.com --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && \
+  gpg --verify /usr/local/bin/gosu.asc && \
+  rm -rf /usr/local/bin/gosu.asc /root/.gnupg && \
+  chmod +x /usr/local/bin/gosu
 
-# run the install
-RUN chmod a+rx /${PETA_RUN_FILE} && \
-  chmod a+rx /accept-eula.sh && \
-  mkdir -p /opt/Xilinx && \
-  chmod 777 /tmp /opt/Xilinx && \
-  cd /tmp && \
-  sudo -u vivado -i /accept-eula.sh /${PETA_RUN_FILE} /opt/Xilinx/petalinux && \
-  rm -f /${PETA_RUN_FILE} /accept-eula.sh
+# vidao
+RUN \
+  dpkg --add-architecture i386 && \
+  apt-get update && \
+  apt-get -y --no-install-recommends install \
+    build-essential git gcc-multilib libc6-dev:i386 ocl-icd-opencl-dev libjpeg62-dev && \
+  apt-get -y -f install && \
+  apt-get install -y python3 && ln -s /usr/bin/python3 /usr/bin/python && \
+  apt-get autoclean && \
+  apt-get autoremove && \
+  rm -rf /var/lib/apt/lists/*
+
+COPY install_config.txt /vivado-installer/
+COPY ${INSTALL_FILE} /vivado-installer/
+
+RUN \
+  cat /vivado-installer/${INSTALL_FILE} | tar zx --strip-components=1 -C /vivado-installer && \
+  /vivado-installer/xsetup \
+    --agree 3rdPartyEULA,WebTalkTerms,XilinxEULA \
+    --batch Install \
+    --config /vivado-installer/install_config.txt && \
+  rm -rf /vivado-installer
+
+
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
 
 # make /bin/sh symlink to bash instead of dash:
 RUN echo "dash dash/sh boolean false" | debconf-set-selections
@@ -106,3 +85,5 @@ WORKDIR /home/vivado/project
 
 #add vivado tools to path
 RUN echo "source /opt/Xilinx/petalinux/settings.sh" >> /home/vivado/.bashrc
+
+CMD ["/bin/bash", "-l"]
