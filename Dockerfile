@@ -9,7 +9,7 @@ LABEL description="Custom Docker image for mp4d-soc-4-drones Vivado + Petalinux 
 # Disable prompts during install
 ARG DEBIAN_FRONTEND=noninteractive
 ARG UBUNTU_MIRROR=archive.ubuntu.com
-ARG INSTALL_FILE="Xilinx_Unified_2020.1_0602_1208.tar.gz"
+ARG INSTALL_FILE="Xilinx_Unified_2020.2_1118_1232.tar.gz"
 ARG gosu_version=1.10
 
 # Locale and environment setup
@@ -58,10 +58,10 @@ RUN dpkg --add-architecture i386 && \
 
 # Install Vivado (copy installer manually beforehand)
 COPY install_config.txt /vivado-installer/
-COPY Xilinx_Unified_2020.1_0602_1208.tar.gz /vivado-installer/
+COPY Xilinx_Unified_2020.2_1118_1232.tar.gz /vivado-installer/
 
 RUN mkdir -p /opt/Xilinx && \
-    tar -xzf /vivado-installer/Xilinx_Unified_2020.1_0602_1208.tar.gz -C /vivado-installer --strip-components=1 && \
+    tar -xzf /vivado-installer/Xilinx_Unified_2020.2_1118_1232.tar.gz -C /vivado-installer --strip-components=1 && \
     /vivado-installer/xsetup \
         --agree 3rdPartyEULA,WebTalkTerms,XilinxEULA \
         --batch Install \
