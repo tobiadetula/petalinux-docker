@@ -112,5 +112,12 @@ RUN mkdir -p /home/vivado/project && \
 # Set working directory
 WORKDIR /home/vivado/project
 
+
+# Create Documents folder and clone repo
+RUN mkdir -p /home/vivado/Documents && \
+    git clone https://github.com/DIII-SDU-Group/MPSoC4Drones.git /home/vivado/Documents/mpsoc4drones-2020 && \
+    chown -R vivado:vivado /home/vivado/Documents/mpsoc4drones-2020
+# Set environment variables for Vivado and PetaLinux
+
 # Default command
 CMD ["/bin/bash", "-l"]
