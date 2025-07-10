@@ -1,5 +1,4 @@
 # Ignore the Vivado installer to avoid copying it unnecessarily
-Xilinx_Unified_2020.2_1118_1232.tar.gz
 .vivado-installer/
 
 # Ignore temporary files and directories
