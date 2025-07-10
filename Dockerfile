@@ -86,6 +86,7 @@ RUN mkdir -p /opt/Xilinx && \
         --batch Install \
         --config /vivado-installer/install_config.txt \
         --xdebug && \
+    echo "Removing installer..." && \
     rm -rf /vivado-installer
 
 RUN echo "Installation completed. Moving on to entry point setup."
