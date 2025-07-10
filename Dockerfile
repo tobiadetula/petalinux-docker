@@ -49,12 +49,13 @@ RUN curl -SL "https://github.com/tianon/gosu/releases/download/${gosu_version}/g
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
-    build-essential git gcc-multilib libc6-dev:i386 \
+    apt-utils man-db build-essential git gcc-multilib libc6-dev:i386 \
     ocl-icd-opencl-dev libjpeg62-dev \
-    python3 python3-pip && \
-    file xz-utils perl sed && \
+    python3 python3-pip file xz-utils perl sed && \
     ln -s /usr/bin/python3 /usr/bin/python && \
     pip3 install virtualenv && \
+    echo "dash dash/sh boolean false" | debconf-set-selections && \
+    DEBIAN_FRONTEND=noninteractive dpkg-reconfigure dash && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Vivado (copy installer manually beforehand)
