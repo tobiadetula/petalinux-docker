@@ -65,8 +65,11 @@ RUN mkdir -p /opt/Xilinx && \
     /vivado-installer/xsetup \
         --agree 3rdPartyEULA,WebTalkTerms,XilinxEULA \
         --batch Install \
-        --config /vivado-installer/install_config.txt && \
+        --config /vivado-installer/install_config.txt \
+        --verbose && \
     rm -rf /vivado-installer
+
+RUN echo "Installation completed. Moving on to entry point setup."
 
 # Entry point script
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
