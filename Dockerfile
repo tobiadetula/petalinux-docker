@@ -66,7 +66,7 @@ RUN mkdir -p /opt/Xilinx && \
         --agree 3rdPartyEULA,WebTalkTerms,XilinxEULA \
         --batch Install \
         --config /vivado-installer/install_config.txt \
-        --verbose && \
+        --xdebug && \
     rm -rf /vivado-installer
 
 RUN echo "Installation completed. Moving on to entry point setup."
