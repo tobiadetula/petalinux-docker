@@ -52,6 +52,7 @@ RUN dpkg --add-architecture i386 && \
     build-essential git gcc-multilib libc6-dev:i386 \
     ocl-icd-opencl-dev libjpeg62-dev \
     python3 python3-pip && \
+    file xz-utils perl sed && \
     ln -s /usr/bin/python3 /usr/bin/python && \
     pip3 install virtualenv && \
     rm -rf /var/lib/apt/lists/*
