@@ -54,8 +54,6 @@ RUN dpkg --add-architecture i386 && \
     python3 python3-pip file xz-utils perl sed && \
     ln -s /usr/bin/python3 /usr/bin/python && \
     pip3 install virtualenv && \
-    echo "dash dash/sh boolean false" | debconf-set-selections && \
-    DEBIAN_FRONTEND=noninteractive dpkg-reconfigure dash && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Vivado (copy installer manually beforehand)
