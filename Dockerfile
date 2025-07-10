@@ -26,7 +26,7 @@ RUN echo "[INFO] Setting up base tools and locales..." && \
     apt-get install -y --no-install-recommends \
     ca-certificates curl sudo gnupg2 xorg dbus dbus-x11 \
     ubuntu-gnome-default-settings gtk2-engines lxappearance \
-    fonts-ubuntu-font-family-console fonts-droid-fallback \
+    fonts-ubuntu-font-family-console fonts-droid-fallback apt-utils\
     locales && \
     locale-gen en_US.UTF-8 && update-locale && \
     rm -rf /var/lib/apt/lists/*
@@ -56,7 +56,7 @@ RUN echo "[INFO] Installing Linux packages and Vivado dependencies..."
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
-    apt-utils man-db build-essential git gcc-multilib libc6-dev:i386 \
+    man-db build-essential git gcc-multilib libc6-dev:i386 \
     ocl-icd-opencl-dev libjpeg62-dev \
     python3 python3-pip file xz-utils perl sed unzip pv \
     libtinfo5 libncurses5 libusb-1.0-0 libxrender1 libxi6 libxtst6 \
