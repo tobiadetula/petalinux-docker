@@ -89,10 +89,9 @@ RUN mkdir -p /opt/Xilinx && \
 
 RUN echo "[INFO] Removing installer..."
 
-RUN chmod -R u+w /vivado-installer && \
-    find /vivado-installer -type f -delete && \
-    rm -rf /vivado-installer && \
-    echo "[INFO] Installer removed successfully."
+RUN rm -rf /vivado-installer/* && \
+    rmdir /vivado-installer && \
+    echo "Installer removed successfully."
 
 RUN echo "Installation completed. Moving on to entry point setup."
 
