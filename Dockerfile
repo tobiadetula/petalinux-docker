@@ -19,7 +19,8 @@ ENV LANG=en_US.UTF-8 \
     HOME=/home/vivado
 
 # Set up APT mirror and base tools
-RUN sed -i.bak "s|archive.ubuntu.com|${UBUNTU_MIRROR}|g" /etc/apt/sources.list && \
+RUN echo "[INFO] Setting up base tools and locales..." && \
+    sed -i.bak "s|archive.ubuntu.com|${UBUNTU_MIRROR}|g" /etc/apt/sources.list && \
     apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
@@ -31,23 +32,25 @@ RUN sed -i.bak "s|archive.ubuntu.com|${UBUNTU_MIRROR}|g" /etc/apt/sources.list &
     rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
-RUN adduser --disabled-password --gecos '' vivado && \
+RUN echo "[INFO] Creating user vivado..." && \
+    adduser --disabled-password --gecos '' vivado && \
     usermod -aG sudo vivado && \
     echo "vivado ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # Install gosu safely
-RUN curl -SL "https://github.com/tianon/gosu/releases/download/${gosu_version}/gosu-$(dpkg --print-architecture)" \
+RUN echo "[INFO] Installing gosu..." && \
+    curl -SL "https://github.com/tianon/gosu/releases/download/${gosu_version}/gosu-$(dpkg --print-architecture)" \
       -o /usr/local/bin/gosu && \
     curl -SL "https://github.com/tianon/gosu/releases/download/${gosu_version}/gosu-$(dpkg --print-architecture).asc" \
       -o /usr/local/bin/gosu.asc && \
     gpg --keyserver keyserver.ubuntu.com --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && \
-    gpg --verify /usr/local/bin/gosu.asc && \
+    gpg --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu && \
     rm -f /usr/local/bin/gosu.asc && \
     chmod +x /usr/local/bin/gosu
 
 
 # Message indicating installation of Linux packages
-RUN echo "Installing Linux packages..."
+RUN echo "[INFO] Installing Linux packages and Vivado dependencies..."
 
 # Install tools for Vivado/PetaLinux
 RUN dpkg --add-architecture i386 && \
@@ -55,7 +58,12 @@ RUN dpkg --add-architecture i386 && \
     apt-get install -y --no-install-recommends \
     apt-utils man-db build-essential git gcc-multilib libc6-dev:i386 \
     ocl-icd-opencl-dev libjpeg62-dev \
-    python3 python3-pip file xz-utils perl sed && \
+    python3 python3-pip file xz-utils perl sed unzip pv \
+    libtinfo5 libncurses5 libusb-1.0-0 libxrender1 libxi6 libxtst6 \
+    libsm6 libxext6 libxrandr2 libglu1-mesa libcanberra-gtk-module \
+    lib32z1 lib32stdc++6 lib32gcc1 libssl-dev zlib1g:i386 libstdc++6:i386 \
+    libncurses5:i386 libselinux1 net-tools iproute2 iptables \
+    chrpath cpio bc diffstat gawk && \
     ln -s /usr/bin/python3 /usr/bin/python && \
     pip3 install virtualenv && \
     rm -rf /var/lib/apt/lists/*
