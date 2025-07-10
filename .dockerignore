@@ -1,0 +1,28 @@
+# Ignore the Vivado installer to avoid copying it unnecessarily
+Xilinx_Unified_2020.2_1118_1232.tar.gz
+.vivado-installer/
+
+# Ignore temporary files and directories
+*.tmp
+*.log
+*.swp
+*.bak
+
+# Ignore version control directories
+.git
+.gitignore
+
+# Ignore build artifacts
+build/
+dist/
+*.o
+*.out
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore Docker-related files (optional)
+.dockerignore
+Dockerfile~
