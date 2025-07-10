@@ -45,6 +45,10 @@ RUN curl -SL "https://github.com/tianon/gosu/releases/download/${gosu_version}/g
     rm -f /usr/local/bin/gosu.asc && \
     chmod +x /usr/local/bin/gosu
 
+
+# Message indicating installation of Linux packages
+RUN echo "Installing Linux packages..."
+
 # Install tools for Vivado/PetaLinux
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
@@ -56,10 +60,17 @@ RUN dpkg --add-architecture i386 && \
     pip3 install virtualenv && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Vivado (copy installer manually beforehand)
-COPY install_config.txt /vivado-installer/
-COPY Xilinx_Unified_2020.2_1118_1232.tar.gz /vivado-installer/
+# Copying Vivado installer
+RUN echo "Copying Vivado installer..."
 
+COPY install_config.txt /vivado-installer/
+RUN apt-get update && apt-get install -y pv
+COPY Xilinx_Unified_2020.2_1118_1232.tar.gz /vivado-installer/Xilinx_Unified_2020.2_1118_1232.tar.gz
+RUN pv /vivado-installer/Xilinx_Unified_2020.2_1118_1232.tar.gz > /dev/null
+
+
+# Installing Xilinx Vivado and PetaLinux tools
+RUN echo "Installing Xilinx Vivado and PetaLinux tools..."
 RUN mkdir -p /opt/Xilinx && \
     tar -xzf /vivado-installer/Xilinx_Unified_2020.2_1118_1232.tar.gz -C /vivado-installer --strip-components=1 && \
     /vivado-installer/xsetup \
