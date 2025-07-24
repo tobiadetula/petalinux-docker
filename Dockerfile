@@ -68,30 +68,34 @@ RUN dpkg --add-architecture i386 && \
     pip3 install virtualenv && \
     rm -rf /var/lib/apt/lists/*
 
-# Copying Vivado installer
+# Copying Vivado installer to Documents directory
 RUN echo "Copying Vivado installer..."
 
-COPY install_config.txt /vivado-installer/
+RUN mkdir -p /home/vivado/Documents/vivado-installer
+COPY install_config.txt /home/vivado/Documents/vivado-installer/
 RUN apt-get update && apt-get install -y pv
-COPY Xilinx_Unified_2020.2_1118_1232.tar.gz /vivado-installer/Xilinx_Unified_2020.2_1118_1232.tar.gz
-RUN pv /vivado-installer/Xilinx_Unified_2020.2_1118_1232.tar.gz > /dev/null
+COPY Xilinx_Unified_2020.2_1118_1232.tar.gz /home/vivado/Documents/vivado-installer/Xilinx_Unified_2020.2_1118_1232.tar.gz
+RUN pv /home/vivado/Documents/vivado-installer/Xilinx_Unified_2020.2_1118_1232.tar.gz > /dev/null
+
+# Set proper ownership for vivado user
+RUN chown -R vivado:vivado /home/vivado/Documents/vivado-installer
 
 
-# Installing Xilinx Vivado and PetaLinux tools (DISABLED - Install manually after container setup)
-# RUN echo "Installing Xilinx Vivado and PetaLinux tools..."
-# RUN mkdir -p /opt/Xilinx && \
-#     tar -xzf /vivado-installer/Xilinx_Unified_2020.2_1118_1232.tar.gz -C /vivado-installer --strip-components=1 && \
-#     /vivado-installer/xsetup \
-#         --agree 3rdPartyEULA,WebTalkTerms,XilinxEULA \
-#         --batch Install \
-#         --config /vivado-installer/install_config.txt \
-#         --xdebug
+# Installing Xilinx Vivado and PetaLinux tools
+RUN echo "Installing Xilinx Vivado and PetaLinux tools..."
+RUN mkdir -p /opt/Xilinx && \
+    tar -xzf /home/vivado/Documents/vivado-installer/Xilinx_Unified_2020.2_1118_1232.tar.gz -C /home/vivado/Documents/vivado-installer --strip-components=1 && \
+    /home/vivado/Documents/vivado-installer/xsetup \
+        --agree 3rdPartyEULA,WebTalkTerms,XilinxEULA \
+        --batch Install \
+        --config /home/vivado/Documents/vivado-installer/install_config.txt \
+        --xdebug
 
-# RUN echo "[INFO] Removing installer..."
+RUN echo "[INFO] Removing installer..."
 
-# RUN rm -rf /vivado-installer/* && \
-#     rmdir /vivado-installer && \
-#     echo "Installer removed successfully."
+RUN rm -rf /home/vivado/Documents/vivado-installer/* && \
+    rmdir /home/vivado/Documents/vivado-installer && \
+    echo "Installer removed successfully."
 
 # Create /opt/Xilinx directory for manual installation
 RUN mkdir -p /opt/Xilinx && chown -R vivado:vivado /opt/Xilinx
@@ -109,9 +113,9 @@ RUN echo "dash dash/sh boolean false" | debconf-set-selections && \
 
 # Prepare Vivado user environment
 USER vivado
-RUN mkdir -p /home/vivado/project
+RUN mkdir -p /home/vivado/project && \
     # Note: Uncomment the line below after manually installing PetaLinux
-    # echo "source /opt/Xilinx/petalinux/settings.sh" >> /home/vivado/.bashrc
+    echo "source /opt/Xilinx/petalinux/settings.sh" >> /home/vivado/.bashrc
 
 # Set working directory
 WORKDIR /home/vivado/project
