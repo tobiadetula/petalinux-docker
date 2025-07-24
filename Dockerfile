@@ -73,13 +73,10 @@ RUN echo "Copying Vivado installer..."
 
 RUN mkdir -p /home/vivado/Documents/vivado-installer
 COPY install_config.txt /home/vivado/Documents/vivado-installer/
+COPY install_config_petalinux.txt /home/vivado/Documents/vivado-installer/
 RUN apt-get update && apt-get install -y pv
 COPY Xilinx_Unified_2020.2_1118_1232.tar.gz /home/vivado/Documents/vivado-installer/Xilinx_Unified_2020.2_1118_1232.tar.gz
 RUN pv /home/vivado/Documents/vivado-installer/Xilinx_Unified_2020.2_1118_1232.tar.gz > /dev/null
-
-# Set proper ownership for vivado user
-RUN chown -R vivado:vivado /home/vivado/Documents/vivado-installer
-
 
 # Installing Xilinx Vivado and PetaLinux tools
 RUN echo "Installing Xilinx Vivado and PetaLinux tools..."
@@ -93,7 +90,6 @@ RUN mkdir -p /tools/Xilinx && \
         --config /home/vivado/Documents/vivado-installer/install_config.txt \
         --xdebug
 
-COPY install_config_petalinux.txt /home/vivado/Documents/vivado-installer/
 RUN echo "[INFO] Installing PetaLinux tools..." 
 RUN /home/vivado/Documents/vivado-installer/xsetup \
     --agree 3rdPartyEULA,WebTalkTerms,XilinxEULA \
@@ -118,6 +114,15 @@ ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 RUN echo "dash dash/sh boolean false" | debconf-set-selections && \
     DEBIAN_FRONTEND=noninteractive dpkg-reconfigure dash
 
+
+    # Create Documents folder and clone repo
+RUN echo "Creating Documents folder and cloning repository..."
+RUN mkdir -p /home/vivado/Documents && \
+    git clone https://github.com/DIII-SDU-Group/MPSoC4Drones.git /home/vivado/Documents/mpsoc4drones-2020 && \
+    chown -R vivado:vivado /home/vivado/Documents/mpsoc4drones-2020
+# Set environment variables for Vivado and PetaLinux
+
+
 # Prepare Vivado user environment
 USER vivado
 RUN mkdir -p /home/vivado/project && \
@@ -129,17 +134,7 @@ RUN mkdir -p /home/vivado/project && \
 # Set working directory
 WORKDIR /home/vivado/project
 
-
-# Create Documents folder and clone repo
-USER root
-RUN echo "Creating Documents folder and cloning repository..."
-RUN mkdir -p /home/vivado/Documents && \
-    git clone https://github.com/DIII-SDU-Group/MPSoC4Drones.git /home/vivado/Documents/mpsoc4drones-2020 && \
-    chown -R vivado:vivado /home/vivado/Documents/mpsoc4drones-2020
-# Set environment variables for Vivado and PetaLinux
-
-
-USER vivado
+# Clone the MPSoC4Drones repository
 WORKDIR /home/vivado/Documents/mpsoc4drones-2020
 RUN source scripts/settings.sh
 RUN echo "source /home/vivado/Documents/mpsoc4drones-2020/scripts/settings.sh" >> ~/.bashrc
