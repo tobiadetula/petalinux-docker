@@ -20,7 +20,8 @@ docker build \
 
 After installation, launch petalinux with:
 
-`docker run -it --name vivado-container vivado-petalinux:2020.2`
+<!-- `docker run -it --name vivado-container vivado-petalinux:2020.2` -->
+`docker run -it --name vivado-container vivado-petalinux-2020.2:latest`
 
 
 
