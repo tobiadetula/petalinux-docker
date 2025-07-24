@@ -69,7 +69,7 @@ RUN dpkg --add-architecture i386 && \
     rm -rf /var/lib/apt/lists/*
 
 # Copying Vivado installer to Documents directory
-RUN echo "Copying Vivado installer..."
+RUN echo "Copying Vivado installer..." 
 
 RUN mkdir -p /home/vivado/Documents/vivado-installer
 COPY install_config.txt /home/vivado/Documents/vivado-installer/
