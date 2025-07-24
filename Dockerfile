@@ -77,21 +77,24 @@ COPY Xilinx_Unified_2020.2_1118_1232.tar.gz /vivado-installer/Xilinx_Unified_202
 RUN pv /vivado-installer/Xilinx_Unified_2020.2_1118_1232.tar.gz > /dev/null
 
 
-# Installing Xilinx Vivado and PetaLinux tools
-RUN echo "Installing Xilinx Vivado and PetaLinux tools..."
-RUN mkdir -p /opt/Xilinx && \
-    tar -xzf /vivado-installer/Xilinx_Unified_2020.2_1118_1232.tar.gz -C /vivado-installer --strip-components=1 && \
-    /vivado-installer/xsetup \
-        --agree 3rdPartyEULA,WebTalkTerms,XilinxEULA \
-        --batch Install \
-        --config /vivado-installer/install_config.txt \
-        --xdebug
+# Installing Xilinx Vivado and PetaLinux tools (DISABLED - Install manually after container setup)
+# RUN echo "Installing Xilinx Vivado and PetaLinux tools..."
+# RUN mkdir -p /opt/Xilinx && \
+#     tar -xzf /vivado-installer/Xilinx_Unified_2020.2_1118_1232.tar.gz -C /vivado-installer --strip-components=1 && \
+#     /vivado-installer/xsetup \
+#         --agree 3rdPartyEULA,WebTalkTerms,XilinxEULA \
+#         --batch Install \
+#         --config /vivado-installer/install_config.txt \
+#         --xdebug
 
-RUN echo "[INFO] Removing installer..."
+# RUN echo "[INFO] Removing installer..."
 
-RUN rm -rf /vivado-installer/* && \
-    rmdir /vivado-installer && \
-    echo "Installer removed successfully."
+# RUN rm -rf /vivado-installer/* && \
+#     rmdir /vivado-installer && \
+#     echo "Installer removed successfully."
+
+# Create /opt/Xilinx directory for manual installation
+RUN mkdir -p /opt/Xilinx && chown -R vivado:vivado /opt/Xilinx
 
 RUN echo "Installation completed. Moving on to entry point setup."
 
@@ -106,8 +109,9 @@ RUN echo "dash dash/sh boolean false" | debconf-set-selections && \
 
 # Prepare Vivado user environment
 USER vivado
-RUN mkdir -p /home/vivado/project && \
-    echo "source /opt/Xilinx/petalinux/settings.sh" >> /home/vivado/.bashrc
+RUN mkdir -p /home/vivado/project
+    # Note: Uncomment the line below after manually installing PetaLinux
+    # echo "source /opt/Xilinx/petalinux/settings.sh" >> /home/vivado/.bashrc
 
 # Set working directory
 WORKDIR /home/vivado/project
