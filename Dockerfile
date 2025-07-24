@@ -83,6 +83,8 @@ RUN chown -R vivado:vivado /home/vivado/Documents/vivado-installer
 
 # Installing Xilinx Vivado and PetaLinux tools
 RUN echo "Installing Xilinx Vivado and PetaLinux tools..."
+
+RUN echo "[INFO] Extracting and installing Vivado and Vitis..." 
 RUN mkdir -p /opt/Xilinx && \
     tar -xzf /home/vivado/Documents/vivado-installer/Xilinx_Unified_2020.2_1118_1232.tar.gz -C /home/vivado/Documents/vivado-installer --strip-components=1 && \
     /home/vivado/Documents/vivado-installer/xsetup \
@@ -90,6 +92,14 @@ RUN mkdir -p /opt/Xilinx && \
         --batch Install \
         --config /home/vivado/Documents/vivado-installer/install_config.txt \
         --xdebug
+
+COPY install_config_petalinux.txt /home/vivado/Documents/vivado-installer/
+RUN echo "[INFO] Installing PetaLinux tools..." 
+RUN /home/vivado/Documents/vivado-installer/xsetup \
+    --agree 3rdPartyEULA,WebTalkTerms,XilinxEULA \
+    --batch Install \
+    --config /home/vivado/Documents/vivado-installer/install_config_petalinux.txt \
+    --xdebug
 
 RUN echo "[INFO] Removing installer..."
 
@@ -115,7 +125,9 @@ RUN echo "dash dash/sh boolean false" | debconf-set-selections && \
 USER vivado
 RUN mkdir -p /home/vivado/project && \
     # Note: Uncomment the line below after manually installing PetaLinux
-    echo "source /opt/Xilinx/petalinux/settings.sh" >> /home/vivado/.bashrc
+    echo "source /tools/Xilinx/petalinux/settings.sh" >> /home/vivado/.bashrc && \
+    # Add Vivado settings to .bashrc
+    echo "source /tools/Xilinx/Vivado/2020.2/settings64.sh" >> /home/vivado/.bashrc
 
 # Set working directory
 WORKDIR /home/vivado/project
@@ -129,5 +141,10 @@ RUN mkdir -p /home/vivado/Documents && \
     chown -R vivado:vivado /home/vivado/Documents/mpsoc4drones-2020
 # Set environment variables for Vivado and PetaLinux
 
+
+USER vivado
+WORKDIR /home/vivado/Documents/mpsoc4drones-2020
+RUN source scripts/settings.sh
+RUN echo "source /home/vivado/Documents/mpsoc4drones-2020/scripts/settings.sh" >> ~/.bashrc
 # Default command
 CMD ["/bin/bash", "-l"]
