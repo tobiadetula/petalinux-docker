@@ -85,7 +85,7 @@ RUN chown -R vivado:vivado /home/vivado/Documents/vivado-installer
 RUN echo "Installing Xilinx Vivado and PetaLinux tools..."
 
 RUN echo "[INFO] Extracting and installing Vivado and Vitis..." 
-RUN mkdir -p /opt/Xilinx && \
+RUN mkdir -p /tools/Xilinx && \
     tar -xzf /home/vivado/Documents/vivado-installer/Xilinx_Unified_2020.2_1118_1232.tar.gz -C /home/vivado/Documents/vivado-installer --strip-components=1 && \
     /home/vivado/Documents/vivado-installer/xsetup \
         --agree 3rdPartyEULA,WebTalkTerms,XilinxEULA \
@@ -106,9 +106,6 @@ RUN echo "[INFO] Removing installer..."
 RUN rm -rf /home/vivado/Documents/vivado-installer/* && \
     rmdir /home/vivado/Documents/vivado-installer && \
     echo "Installer removed successfully."
-
-# Create /opt/Xilinx directory for manual installation
-RUN mkdir -p /opt/Xilinx && chown -R vivado:vivado /opt/Xilinx
 
 RUN echo "Installation completed. Moving on to entry point setup."
 
